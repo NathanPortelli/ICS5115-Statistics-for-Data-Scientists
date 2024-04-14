@@ -41,7 +41,8 @@
   The final output was placed into 'filtered_countryborders_data', consisting of
   the columns 'country_code', 'country_name', 'country_border_code' and 
   'country_border_name', consisting of only countries which at some point
-  participated in the ESC.
+  participated in the ESC. This modified dataset is saved to 
+  'outputs/filtered_countryborders_data.csv'.
 "
 
 "
@@ -161,6 +162,17 @@ unique_countries <- unique(contestants_data$to_country)
 
 print(unique_countries)
 
+
+# Create a data frame with the column named "unique_countries"
+unique_countries_df <- data.frame(unique_countries)
+
+# Name the column
+names(unique_countries_df) <- "unique_countries"
+
+# Write to CSV
+output_file <- "outputs/unique_countries.csv"
+write.csv(unique_countries_df, file = output_file, row.names = FALSE)
+
 "
   Filtering the countries to those that have at some point been in the Eurovision
 "
@@ -183,3 +195,12 @@ filtered_countryborders_data <- as.data.frame(filtered_countryborders_data)
 
 # Print the updated filtered_countryborders_data
 print(filtered_countryborders_data)
+
+"
+  Saving modified dataset to csv file
+"
+
+# Save filtered_countryborders_data as a CSV file
+output_file <- "outputs/filtered_countryborders_data.csv"
+write.csv(filtered_countryborders_data, file = output_file, row.names = FALSE)
+

@@ -10,7 +10,6 @@
 library(stringr)
 library(tidyr)
 
-
 # Load the country languages dataset
 # Source: https://www.kaggle.com/datasets/shubhamptrivedi/languages-spoken-across-various-nations
 languages_dataset <- read.csv("data/countries-languages.csv")
@@ -32,8 +31,10 @@ languages_dataset$Languages.Spoken <- sapply(languages_dataset$Languages.Spoken,
   Taking only countries taking part in the ESC
 "
 
+unique_countries <- read.csv("outputs/unique_countries.csv")
+
 # Filter languages_dataset with unique_countries
-filtered_languages <- languages_dataset[languages_dataset$Country %in% unique_countries, ]
+filtered_languages <- languages_dataset[languages_dataset$Country %in% unique_countries$unique_countries, ]
 
 # Print the filtered dataset
 print(filtered_languages)
@@ -65,7 +66,11 @@ print(separated_langauges)
   Converting to country codes
 "
 
-# Assuming you have loaded filtered_countryborders_data into a data frame called filtered_countryborders_data
+# Assuming borders_data_preparation.R has been run and 
+# filtered_countryborders_data.csv exists in outputs folder
+
+# Read filtered_countryborders_data from CSV file
+filtered_countryborders_data <- read.csv("outputs/filtered_countryborders_data.csv")
 
 # Remove duplicates from filtered_countryborders_data
 filtered_countryborders_data_unique <- unique(filtered_countryborders_data[c("country_name", "country_code")])
@@ -80,6 +85,13 @@ names(separated_langauges_coded)[3] <- "Country_Code"
 # Print the merged data
 print(separated_langauges_coded)
 
+"
+  Saving modified dataset to csv file
+"
+
+# Save separated_langauges_coded as a CSV file
+output_file <- "outputs/separated_langauges_coded.csv"
+write.csv(separated_langauges_coded, file = output_file, row.names = FALSE)
 
 
 

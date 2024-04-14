@@ -21,8 +21,12 @@ library(rnaturalearthdata)
 
 
 "
-  List of votes dataset
+  Loading datasets
 "
+
+# Load the filtered_countryborders_data.csv file
+filtered_countryborders_data <- read.csv("outputs/filtered_countryborders_data.csv")
+
 
 # Load the votes dataset
 # Source: https://github.com/Spijkervet/eurovision-dataset
@@ -85,7 +89,7 @@ plot(graph,
      vertex.size = 10,  # Set node size
      vertex.label.cex = 0.8,  # Set node label size
      edge.arrow.size = 0.5,  # Set edge arrow size
-     main = "Network Graph of Countries",  # Set main title
+     main = "Network Graph of Bordering Countries",  # Set main title
      layout = layout_with_fr)  # Use force-directed layout for better visualization
 
 # Percentage of neighbour voting for the top 3 points per country
@@ -105,6 +109,21 @@ if (total_rows > 0) {
 
 # Output the percentage
 print(paste("Percentage of rows where is_neighbour = TRUE:", percentage_neighbours, "%"))
+
+"
+  Outputting to CSV
+"
+
+
+# Step 1: Create a dataframe for vertices
+vertices <- data.frame(
+  country = c(unique(edge_list$from), unique(edge_list$to)),
+  color = c(rep("green", length(unique(edge_list$from))), rep("red", length(unique(edge_list$to))))
+)
+
+# Step 3: Export edge list to CSV
+write.csv(edge_list, "outputs/borders_voting_edges.csv", row.names = FALSE)
+
 
 
 "
