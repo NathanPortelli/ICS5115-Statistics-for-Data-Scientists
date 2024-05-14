@@ -38,8 +38,8 @@
   The script writes the resulting random voting patterns to a CSV file named random_votes.csv.
 "
 
-# install.packages('purrr')
-# install.packages('dplyr')
+install.packages('purrr')
+install.packages('dplyr')
 
 library(dplyr)
 library(purrr)
@@ -54,12 +54,12 @@ actual_votes <- read.csv("data/votes.csv", header = TRUE)
 
 # Remove unwanted columns and votes
 empty_votes <- actual_votes %>%
-  select(-from_country_id, -to_country_id) %>%
-  mutate(
-    total_points = ifelse(is.na(total_points), NA, ""),
-    tele_points = ifelse(is.na(tele_points), NA, ""),
-    jury_points = ifelse(is.na(jury_points), NA, "")
-  )
+select(-from_country_id, -to_country_id) %>%
+mutate(
+  total_points = ifelse(is.na(total_points), NA, ""),
+  tele_points = ifelse(is.na(tele_points), NA, ""),
+  jury_points = ifelse(is.na(jury_points), NA, "")
+)
 
 "
   Shuffling to_country

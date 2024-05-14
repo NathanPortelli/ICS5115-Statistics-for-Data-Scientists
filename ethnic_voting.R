@@ -17,6 +17,9 @@ separated_ethnicities_coded <- read.csv("outputs/separated_ethnicities_coded.csv
 # Remove the columns "from_country_id" and "to_country_id"
 votes_data <- votes_data[, !names(votes_data) %in% c("from_country_id", "to_country_id")]
 
+# Filter out records coming from the non-participating world
+votes_data <- votes_data[!grepl("wld", votes_data$from_country, ignore.case = TRUE), ]
+
 # Replace NA values in tele_points and jury_points with 0
 votes_data$tele_points[is.na(votes_data$tele_points)] <- -1
 votes_data$jury_points[is.na(votes_data$jury_points)] <- -1

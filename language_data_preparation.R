@@ -4,6 +4,7 @@
   Decription:
 "
 
+#install.packages('stringr')
 #install.packages('tidyr')
 
 # Load the required library
@@ -92,6 +93,8 @@ print(separated_langauges_coded)
 # Save separated_langauges_coded as a CSV file
 output_file <- "outputs/separated_langauges_coded.csv"
 write.csv(separated_langauges_coded, file = output_file, row.names = FALSE)
+
+
 
 
 

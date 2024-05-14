@@ -72,12 +72,12 @@ print(filtered_ethnic)
 # Initialize an empty data frame to store the separated records
 separated_ethnicities <- data.frame(Country = character(), Ethnic.group = character(), stringsAsFactors = FALSE)
 
-# Loop through each row in filtered_languages
+# Loop through each row in filtered_ethnic
 for (i in 1:nrow(filtered_ethnic)) {
   country <- filtered_ethnic$Country[i]
   ethnicgroups <- unlist(strsplit(filtered_ethnic$Ethnic.group[i], " "))
   
-  # Create a new row for each language spoken in the country
+  # Create a new row for each ethnicity in the country
   for (ethnicgroup in ethnicgroups) {
     separated_ethnicities <- rbind(separated_ethnicities, data.frame(Country = country, Ethnic.group = ethnicgroup))
   }
@@ -119,4 +119,37 @@ print(separated_ethnicities_coded)
 
 # Save filtered_ethnic to a CSV file
 write.csv(separated_ethnicities_coded, "outputs/separated_ethnicities_coded.csv", row.names = FALSE)
+
+
+"
+  Further cleaning of data after manually reviewing the previous output
+"
+
+# Checking for duplicates
+duplicate_rows <- duplicated(separated_ethnicities_coded)
+if (any(duplicate_rows)) {
+  cat("Duplicate row/s found.\n")
+  separated_ethnicities_coded <- separated_ethnicities_coded[!duplicate_rows, ]
+}
+
+# For Israel's ethnicities: Removing "born" from ethnic group names
+remove_specific_words <- function(ethnic_group) {
+  words_to_remove <- c("born")
+  cleaned_group <- gsub(paste0("\\b", paste(words_to_remove, collapse = "|"), "\\b"), "", ethnic_group, ignore.case = TRUE)
+  return(cleaned_group)
+}
+
+# Apply the function to the Ethnic.group column
+separated_ethnicities_coded$Ethnic.group <- sapply(separated_ethnicities_coded$Ethnic.group, remove_specific_words)
+
+
+# Removing any record with the word "Republic" in the "Ethnic.group" column
+separated_ethnicities_coded <- separated_ethnicities_coded[!grepl("Republic", separated_ethnicities_coded$Ethnic.group), ]
+
+# Changing "AsianAsian" to "Asian"
+separated_ethnicities_coded$Ethnic.group <- gsub("AsianAsian", "Asian", separated_ethnicities_coded$Ethnic.group)
+
+# Modified dataset
+write.csv(separated_ethnicities_coded, "outputs/separated_ethnicities_coded.csv", row.names = FALSE)
+
 
