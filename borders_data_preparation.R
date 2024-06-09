@@ -2,7 +2,7 @@
   borders_data_preparation.R
   ``````````````````````````
   Decription:
-  
+  ``````````
   This script is making use of GEODATASOURCE-COUNTRY-BORDERS.CSV and 
   contestants.csv in order to create a filtered list of Eurovision participants
   and their bordering neighbours.
@@ -46,15 +46,16 @@
 "
 
 "
-  Country borders from GEODATASOURCE-COUNTRY-BORDERS.csv
+  Country borders taken from 'GEODATASOURCE-COUNTRY-BORDERS.csv'
 "
 
-# Load the country borders dataset
+# Loading the country borders dataset
 # Source: https://github.com/geodatasource/country-borders
 countryborders_dataset <- read.csv("data/GEODATASOURCE-COUNTRY-BORDERS.CSV")
 
 # Adding bordering countries of extinct nations
-# Countries that came out of this nation were not included as neighbours.
+# Countries that were created from this nation were not included as neighbours
+# of it.
 new_records <- data.frame(
   country_code = rep("YU", 6),
   country_name = rep("Yugoslavia", 6),
@@ -62,11 +63,11 @@ new_records <- data.frame(
   country_border_name = c("Italy", "Austria", "Romania", "Bulgaria", "Greece", "Albania")
 )
 
-# Duplicate new_records and swap country_code and country_border_code
+# Duplicating new_records and swapping country_code and country_border_code
 new_records_swapped <- new_records[, c("country_border_code", "country_border_name", "country_code", "country_name")]
 colnames(new_records_swapped) <- colnames(new_records)
 
-# Add new records to the countryborders_dataset
+# Addding new_records to the countryborders_dataset
 countryborders_dataset <- rbind(countryborders_dataset, new_records, new_records_swapped)
 
 "
@@ -121,6 +122,7 @@ cyprus_turkey <- data.frame(
   country_border_code = c("TR", "CY"),
   country_border_name = c("Turkey", "Cyprus")
 )
+# The following countries were included with no neighbours
 # Israel
 israel <- data.frame(
   country_code = c("IL", NA),
@@ -136,27 +138,27 @@ australia <- data.frame(
   country_border_name = NA
 )
 
-# Add new records to the countryborders_dataset
+# Addding the new records
 countryborders_dataset <- rbind(countryborders_dataset, france_uk, malta_italy, denmark_norway_sweden, cyprus_turkey, uk_iceland, iceland_norway, israel, australia)
 
 "
   Cleaning up the data
 "
 
-# Todo: The following is a fix for Moldova. Potentially replace with cleaner method.
+# Fixing the output for 'Moldova' due to issues with formatting on dataset
 replace_country_names <- function(data, old_name, new_name) {
   data$country_name <- gsub("\\(.*?\\)", "", gsub(old_name, new_name, data$country_name))
   data$country_border_name <- gsub("\\(.*?\\)", "", gsub(old_name, new_name, data$country_border_name))
   return(data)
 }
 
-# Formalising names of countries with multiple commonly used names
+# Formalising names of countries with multiple used names
 countryborders_dataset <- replace_country_names(countryborders_dataset, "Russian Federation", "Russia")
 countryborders_dataset <- replace_country_names(countryborders_dataset, "Bosnia and Herzegovina", "Bosnia & Herzegovina")
 countryborders_dataset <- replace_country_names(countryborders_dataset, "Czechia", "Czech Republic")
 countryborders_dataset <- replace_country_names(countryborders_dataset, "United Kingdom of Great Britain and Northern Ireland", "United Kingdom")
 
-# Quick fix for Moldova
+# Fixing the output for Moldova
 countryborders_dataset <- replace_country_names(countryborders_dataset, "Moldova", "Moldova")
 
 print(countryborders_dataset)
@@ -166,20 +168,34 @@ print(countryborders_dataset)
   List of unique contestants from contestants.csv dataset
 "
 
-# Load the contestants dataset
+# Loading the contestants dataset
 # Source: https://github.com/Spijkervet/eurovision-dataset
 contestants_data <- read.csv("data/contestants.csv")
 
-# Fixing & formalising names of countries with multiple commonly used names
+# Fixing & formalising names of countries with multiple used names
 contestants_data$to_country <- gsub("North MacedoniaN.Macedonia", "North Macedonia", contestants_data$to_country)
 contestants_data$to_country <- gsub("Czechia", "Czech Republic", contestants_data$to_country)
-# Data of the Union State of Serbia & Montenegro contributed to 'Serbia'
+
+"
+  While it was determined that the data from Yugoslavia should not be attributed
+  to a modern state, the 'Union State of Serbia & Montenegro' was heavily
+  dominated by the modern state of Serbia, and therefore, to reduce confusion
+  in the output, the two years that the Union State participated in the ESC
+  were completely attributed to Serbia.
+"
+
+# Data from the 'Union State of Serbia & Montenegro' contributed to 'Serbia'
 contestants_data$to_country <- gsub("Serbia & Montenegro", "Serbia", contestants_data$to_country)
+
+"
+  A list of every country that has ever participated in the ESC is extracted
+  and saved to 'unique_countries.csv' to be used in various stages of this
+  research to filter out countries that have never participated from lists.
+"
 
 # Unique items in the "to_country" column
 unique_countries <- unique(contestants_data$to_country)
-
-print(unique_countries)
+print(unique_countries) 
 
 # Dataframe
 unique_countries_df <- data.frame(unique_countries)
@@ -189,20 +205,18 @@ names(unique_countries_df) <- "unique_countries"
 output_file <- "outputs/unique_countries.csv"
 write.csv(unique_countries_df, file = output_file, row.names = FALSE)
 
-
 "
-  Filtering the countries to those that have at some point been in the Eurovision
+  Filtering the countries to those that have at some point been in the ESC
 "
 
 # Filtering records based on whether country_name is in unique_countries list after trimming whitespace
 filtered_countryborders_data <- countryborders_dataset[trimws(countryborders_dataset$country_name) %in% trimws(unique_countries), ]
 
-# Filter out records where country_border_code is empty but not NA
+# Filtering out records where country_border_code is empty but not NA (due to Australia and Israel)
 filtered_countryborders_data <- filtered_countryborders_data[!(filtered_countryborders_data$country_border_code == "" & !is.na(filtered_countryborders_data$country_border_code)), ]
 
-
 "
-  Removing any remnants - extra spaces after word
+  Removing any remnants - extra spaces after words
 "
 
 filtered_countryborders_data <- lapply(filtered_countryborders_data, function(x) trimws(x))
@@ -211,12 +225,9 @@ filtered_countryborders_data <- as.data.frame(filtered_countryborders_data)
 
 print(filtered_countryborders_data)
 
-
 "
-  Saving final modified dataset to csv file
+  Saving final modified dataset to 'filtered_countryborders_data.csv'
 "
 
-# Save filtered_countryborders_data as a CSV file
 output_file <- "outputs/filtered_countryborders_data.csv"
 write.csv(filtered_countryborders_data, file = output_file, row.names = FALSE)
-

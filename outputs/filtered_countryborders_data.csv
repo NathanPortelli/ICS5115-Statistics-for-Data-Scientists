@@ -213,6 +213,8 @@
 "BG","Bulgaria","YU","Yugoslavia"
 "GR","Greece","YU","Yugoslavia"
 "AL","Albania","YU","Yugoslavia"
+"FR","France","GB","United Kingdom"
+"GB","United Kingdom","FR","France"
 "MT","Malta","IT","Italy"
 "IT","Italy","MT","Malta"
 "DK","Denmark","NO","Norway"

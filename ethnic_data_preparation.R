@@ -1,56 +1,83 @@
 "
   ethnic_data_preparation.R
   `````````````````````````
+  
   Decription:
+  ```````````
+  This script processes ethnic group data for countries participating in the 
+  ESC. It uses the `cia-factbook-ethnic-groups.csv` and `unique_countries.csv` 
+  datasets to create a refined dataset of ethnic groups for these countries.
+
+  Datasets Used:
+  ``````````````
+  cia-factbook-ethnic-groups.csv --> Data scraped from cia.gov containing 
+  information about ethnic groups in various countries. The Python script used
+  to scrape the information can be found in 'extra\pyCIAEthnicGroups'.
+  unique_countries.csv --> Lists countries that have participated in the ESC 
+  from 1957 to 2023. This information was processed in 
+  'borders_data_preparation.R' script.
+  
+  Data Cleaning:
+  ``````````````
+  The script cleans ethnic group names by removing unnecessary characters and 
+  spaces, and specific words such as 'EU' and 'European'. The ethnicities are
+  then split from one another, each being directly linked to the associated
+  country.
+  
+  It was also deemed necessary to provide further cleaning of data after 
+  manually reviewing the outputted dataset, such as the removal of duplicate 
+  records, and removing extra wording such as '-born' from the end of the
+  ethnicity.
+
+  Filtering Data:
+  ```````````````
+  The script filters the ethnic data to include only countries participating in 
+  the ESC. It splits ethnic groups into individual records to create a detailed 
+  dataset.
+  
+  Integrating Data to Country Info:
+  `````````````````````````````````
+  The script matches country names with their respective country codes using a 
+  pre-existing dataset, and integrates this information into the final dataset.
+
+
+  The final output is saved in `separated_ethnicities_coded.csv`, containing 
+  columns `Country`, `Ethnic.group`, and `Country_Code`. This processed dataset 
+  is then saved to `outputs/separated_ethnicities_coded.csv`.
 "
-
-"
-  todo: issue ... Need to get the dominant ethnicity from each country to determine who the minorities
-  from other countries are voting for.....
-"
-
-
-
-
-
-
 
 "
   Loading the datasets
 "
 
-# Load the country languages dataset
+# Loading the country languages dataset
 # Source: https://www.cia.gov/the-world-factbook/about/archives/2022/field/ethnic-groups
-# Load the dataset
 ethnic_dataset <- read.csv("data/cia-factbook-ethnic-groups.csv")
 
 "
   Removing unnecessary characters from Ethnic Group column
 "
 
-# Function to clean ethnic group names
+# Cleaning ethnic group names
 clean_ethnic_group <- function(ethnic_group) {
-  # Use regular expression to remove unwanted characters and spaces
-  cleaned_group <- gsub("[\"~%().;:,-<>]", "", ethnic_group)  # Include " character to be removed
+  # Unwanted characters and spaces
+  cleaned_group <- gsub("[\"~%().;:,-<>]", "", ethnic_group)
   cleaned_group <- gsub("\\b(?![A-Z])\\S+\\b", "", cleaned_group, perl = TRUE)
-  # Remove specific words
-  cleaned_group <- gsub("\\bEU\\b", "", cleaned_group, ignore.case = TRUE)  # Remove "EU" (case-insensitive)
-  cleaned_group <- gsub("\\bEuropean\\b", "", cleaned_group, ignore.case = TRUE)  # Remove "European" (case-insensitive)
+  # Removing specific words
+  cleaned_group <- gsub("\\bEU\\b", "", cleaned_group, ignore.case = TRUE)
+  cleaned_group <- gsub("\\bEuropean\\b", "", cleaned_group, ignore.case = TRUE)
   cleaned_group <- gsub("\\Soviet Union\\b", "", cleaned_group, ignore.case = TRUE)
   cleaned_group <- gsub("\\North Macedonia\\b", "", cleaned_group, ignore.case = TRUE)
   # Additional cleaning for encoding issues
-  cleaned_group <- iconv(cleaned_group, from = "UTF-8", to = "ASCII", sub = " ")  # Convert to ASCII
-  # Remove leading and trailing whitespaces and extra spaces between words
+  cleaned_group <- iconv(cleaned_group, from = "UTF-8", to = "ASCII", sub = " ")
+  # Removeing leading and trailing whitespaces and extra spaces between words
   cleaned_group <- gsub("\\s+", " ", cleaned_group)
   cleaned_group <- trimws(cleaned_group)
   return(cleaned_group)
 }
 
-# Apply the cleaning function to the Ethnic Group column
+# Applying the cleaning function to the Ethnic Group column
 ethnic_dataset$Ethnic.group <- sapply(ethnic_dataset$Ethnic.group, clean_ethnic_group)
-
-# Print the cleaned dataset
-print(ethnic_dataset)
 
 "
   Taking only countries taking part in the ESC
@@ -58,60 +85,47 @@ print(ethnic_dataset)
 
 unique_countries <- read.csv("outputs/unique_countries.csv")
 
-# Filter ethnic_dataset with unique_countries
+# Filtering ethnic_dataset based on unique_countries
 filtered_ethnic <- ethnic_dataset[ethnic_dataset$Country %in% unique_countries$unique_countries, ]
-
-# Print the filtered dataset
-print(filtered_ethnic)
-
 
 "
   Splitting Ethnicities
 "
 
-# Initialize an empty data frame to store the separated records
+# Initialising an empty DataFrame to store the separated records
 separated_ethnicities <- data.frame(Country = character(), Ethnic.group = character(), stringsAsFactors = FALSE)
 
-# Loop through each row in filtered_ethnic
+# Looping through each row in filtered_ethnic
 for (i in 1:nrow(filtered_ethnic)) {
   country <- filtered_ethnic$Country[i]
   ethnicgroups <- unlist(strsplit(filtered_ethnic$Ethnic.group[i], " "))
   
-  # Create a new row for each ethnicity in the country
+  # Creating a new row for each ethnicity in the country
   for (ethnicgroup in ethnicgroups) {
     separated_ethnicities <- rbind(separated_ethnicities, data.frame(Country = country, Ethnic.group = ethnicgroup))
   }
 }
 
-# Reset row names
+# Resetting row names
 row.names(separated_ethnicities) <- NULL
-
-# Print the separated records
 print(separated_ethnicities)
-
 
 "
   Converting to country codes
 "
 
-# Assuming borders_data_preparation.R has been run and 
-# filtered_countryborders_data.csv exists in outputs folder
-
-# Read filtered_countryborders_data from CSV file
+# Loading the filtered country borders dataset from 'borders_voting.R'
 filtered_countryborders_data <- read.csv("outputs/filtered_countryborders_data.csv")
 
-# Remove duplicates from filtered_countryborders_data
+# Removing duplicates from filtered_countryborders_data
 filtered_countryborders_data_unique <- unique(filtered_countryborders_data[c("country_name", "country_code")])
 
-# Perform a join operation
+# Performing a join operation
 separated_ethnicities_coded <- merge(separated_ethnicities, filtered_countryborders_data_unique, by.x = "Country", by.y = "country_name", all.x = TRUE)
 
-# Select relevant columns and rename
-separated_ethnicities_coded <- separated_ethnicities_coded[, c("Country", "Ethnic.groups", "country_code")]
+# Selecting relevant columns and renaming
+separated_ethnicities_coded <- separated_ethnicities_coded[, c("Country", "Ethnic.group", "country_code")]
 names(separated_ethnicities_coded)[3] <- "Country_Code"
-
-# Print the merged data
-print(separated_ethnicities_coded)
 
 "
   Saving modified dataset to csv file
@@ -119,7 +133,6 @@ print(separated_ethnicities_coded)
 
 # Save filtered_ethnic to a CSV file
 write.csv(separated_ethnicities_coded, "outputs/separated_ethnicities_coded.csv", row.names = FALSE)
-
 
 "
   Further cleaning of data after manually reviewing the previous output
@@ -138,10 +151,7 @@ remove_specific_words <- function(ethnic_group) {
   cleaned_group <- gsub(paste0("\\b", paste(words_to_remove, collapse = "|"), "\\b"), "", ethnic_group, ignore.case = TRUE)
   return(cleaned_group)
 }
-
-# Apply the function to the Ethnic.group column
 separated_ethnicities_coded$Ethnic.group <- sapply(separated_ethnicities_coded$Ethnic.group, remove_specific_words)
-
 
 # Removing any record with the word "Republic" in the "Ethnic.group" column
 separated_ethnicities_coded <- separated_ethnicities_coded[!grepl("Republic", separated_ethnicities_coded$Ethnic.group), ]
@@ -151,5 +161,3 @@ separated_ethnicities_coded$Ethnic.group <- gsub("AsianAsian", "Asian", separate
 
 # Modified dataset
 write.csv(separated_ethnicities_coded, "outputs/separated_ethnicities_coded.csv", row.names = FALSE)
-
-
