@@ -1,7 +1,6 @@
 "
   borders_voting.R
   ````````````````
-  
   Description:
   ````````````
   After data preparation and pre-processing in 'borders_data_preparation.R',
@@ -78,19 +77,17 @@
 # install.packages('maps')
 # install.packages('mapdata')
 # install.packages('sf')
-# install.packages('rnaturalearth')
-# install.packages('rnaturalearthdata')
 
 # Loading required packages
 library(dplyr)
 library(sf)
 library(ggplot2)
+library(ggrepel)
 library(igraph)
 library(sf)
-library(rnaturalearth)
-library(rnaturalearthdata)
 library(maps)
 library(mapdata)
+library(readr)
 
 "
   Loading datasets
@@ -132,7 +129,10 @@ heatmap <- ggplot(voting_matrix, aes(x = to_country, y = from_country, fill = to
   geom_tile() +
   scale_fill_gradient(low = "white", high = "red") +
   theme_minimal() +
-  labs(title = "Voting Patterns in Eurovision Song Contest") +
+  labs(title = "Voting Patterns in Eurovision Song Contest",
+       x = "To Country",
+       y = "From Country",
+       fill = "Total Points") +
   theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1), legend.position = "bottom")
 
 print(heatmap)
@@ -202,6 +202,29 @@ plot(
   Network Graph - Voting Patterns of the ESC
 "
 
+# Getting the region colour based on country
+# Regions based on: https://doi.org/10.1007/s42001-018-0020-2
+get_region_color <- function(country_code) {
+  if (country_code %in% c("PT", "ES", "MT", "SM", "AD", "MC", "MA", "IT")) {
+    return("red")
+  } else if (country_code %in% c("GB", "IE", "BE", "FR", "LU")) {
+    return("turquoise")
+  } else if (country_code %in% c("IS", "DK", "NO", "SE", "FI", "SK")) {
+    return("lightslateblue")
+  } else if (country_code %in% c("DE", "AT", "NL", "CH", "SI", "CZ", "HU")) {
+    return("gray")
+  } else if (country_code %in% c("GR", "ME", "CY", "AL", "BG", "HR", "BA", "TR", "MK", "RO", "RS", "IL", "YU")) {
+    return("orange")
+  } else if (country_code %in% c("RU", "UA", "MD", "BY", "PL", "GE", "AM", "AZ", "EE", "LT", "LV")) {
+    return("green")
+  } else if (country_code == "AU") {
+    return("white")
+  } else {
+    return("pink") # Default colour for unknown regions
+  }
+}
+
+
 # Aggregating total points for each combination of from_country and to_country
 top_countries <- aggregate(total_points ~ from_country + to_country, data = votes_data, sum)
 
@@ -235,9 +258,12 @@ edge_list <- data.frame(
 edge_list$is_neighbour <- as.logical(edge_list$is_neighbour)
 
 graph <- graph_from_data_frame(edge_list, directed = TRUE)  # Undirected graph
+
+vertex_colours <- sapply(V(graph)$name, get_region_color)
+
 plot(graph, 
      edge.color = ifelse(edge_list$is_neighbour, "green", "red"),
-     vertex.color = "white",
+     vertex.color = vertex_colours,
      vertex.size = 13,
      vertex.label.cex = 0.7,
      edge.arrow.size = 0.2,
@@ -276,47 +302,66 @@ write.csv(edge_list, "outputs/borders_voting_edges.csv", row.names = FALSE)
 
 "
   European Map of countries that voted for 'Denmark'
+  (Map adapted from: https://warin.ca/posts/rcourse-datavisualizationwithr-maps/)
 "
 
-votes_data <- read.csv("data/votes.csv")
+# Re-loading the data
+votes <- read_csv("data/votes.csv")
 
-# Creating a mapping of country codes to match the shapefile
-country_code_mapping <- data.frame(
-  from_country_id = c("ad", "al", "am", "at", "au", "az", "be", "bg", "hr", "cy", "cz", "dk", "ee", "fi", "fr", "ge", "de", "gr", "hu", "is", "ie", "il", "it", "lv", "lt", "lu", "mt", "md", "mc", "me", "nl", "mk", "no", "pl", "pt", "ro", "ru", "sm", "rs", "sk", "si", "es", "se", "ch", "ua", "gb"),
-  GID_0 = c("AND", "ALB", "ARM", "AUT", "AUS", "AZE", "BEL", "BGR", "HRV", "CYP", "CZE", "DNK", "EST", "FIN", "FRA", "GEO", "DEU", "GRC", "HUN", "ISL", "IRL", "ISR", "ITA", "LVA", "LTU", "LUX", "MLT", "MDA", "MCO", "MNE", "NLD", "MKD", "NOR", "POL", "PRT", "ROU", "RUS", "SMR", "SRB", "SVK", "SVN", "ESP", "SWE", "CHE", "UKR", "GBR")
+# Filtering to only records containing votes given to Denmark
+votes_to_dk <- votes %>% filter(to_country == "dk")
+
+# Summing the total votes given per country
+total_points_to_dk <- votes_to_dk %>%
+  group_by(from_country) %>%
+  summarise(total_points = sum(total_points)) %>%
+  ungroup()
+
+# Mapping country codes to country names
+country_mapping <- data.frame(
+  from_country = c("at", "au", "be", "cz", "de", "dk", "ee", "fi", "gb", "gr", "hr", "hu", "ie", "il", "is", "it", "lt", "lv", "md", "mt", "nl", "no", "pl", "pt", "ro", "ru", "se", "si", "sk", "sm", "tr", "ua", "va"),
+  region = c("Austria", "Australia", "Belgium", "Czech Republic", "Germany", "Denmark", "Estonia", "Finland", "UK", "Greece", "Croatia", "Hungary", "Ireland", "Israel", "Iceland", "Italy", "Lithuania", "Latvia", "Moldova", "Malta", "Netherlands", "Norway", "Poland", "Portugal", "Romania", "Russia", "Sweden", "Slovenia", "Slovakia", "San Marino", "Turkey", "Ukraine", "Vatican")
 )
 
-# Joining the votes data with the mapping
-votes_to_at <- votes_data %>%
-  filter(to_country_id == "dk") %>%
-  group_by(from_country_id) %>%
-  summarise(total_votes = sum(total_points, na.rm = TRUE)) %>%
-  left_join(country_code_mapping, by = "from_country_id")
+# Merging the total points data with the country mapping to get full country names
+total_points_to_dk <- total_points_to_dk %>%
+  left_join(country_mapping, by = "from_country")
 
-europe <- st_read("figures/europe/Europe_merged.shp")
+# Loading the map data
+world_map <- map_data(map = "world")
 
-# Merging the aggregated votes data with the shapefile using the mapped GID_0
-europe_votes <- europe %>%
-  left_join(votes_to_at, by = c("GID_0"))
+# Filtering map data to include only European countries
+europe <- subset(world_map, region %in% c("Albania", "Andorra", "Armenia", "Austria", "Azerbaijan",
+                                          "Belarus", "Belgium", "Bosnia and Herzegovina", "Bulgaria",
+                                          "Croatia", "Cyprus", "Czech Republic","Denmark","Estonia","Finland", 
+                                          "France","Georgia", "Germany", "Greece","Hungary","Iceland", 
+                                          "Ireland", "Italy", "Kosovo", "Latvia","Liechtenstein", 
+                                          "Lithuania", "Luxembourg","Malta","Moldova","Monaco","Montenegro",
+                                          "Macedonia", "Netherlands","Norway","Poland","Portugal","Romania",
+                                          "Russia","San Marino","Serbia","Slovakia","Slovenia","Spain",
+                                          "Sweden","Switzerland","Turkey","Ukraine","UK","Vatican", "Israel"))
 
-summary(europe_votes$total_votes)
 
-# Plotting the map using ggplot2
-ggplot(data = europe_votes) +
-  geom_sf(aes(fill = total_votes)) +
-  scale_fill_continuous(name = "Total Votes for Denmark", 
-                        low = "lightblue", 
-                        high = "darkblue", 
-                        na.value = "grey50") +
-  theme_minimal() +
-  labs(title = "Votes Given to Denmark by European Countries") +
-  theme(legend.position = "bottom")
+# Merging the aggregated points data with the map data
+europe <- europe %>%
+  left_join(total_points_to_dk, by = c("region" = "region"))
+
+# Replace NA values in total_points with 0
+europe$total_points[is.na(europe$total_points)] <- 0
+
+# Plotting map using ggplot2
+ggplot(data = europe, aes(x = long, y = lat, group = group)) + 
+  geom_polygon(aes(fill = total_points), color = "grey") +
+  scale_fill_gradient(low = "lightblue", high = "darkblue", name = "Total Points") +
+  theme_void() +
+  coord_fixed(ratio = 1.6, xlim = c(-50, 80)) +
+  theme(legend.position = "none")
 
 "
   Correlation Analysis
 "
 
-# Re-loading the datasets
+ # Re-loading the datasets
 votes_data <- read.csv("data/votes.csv")
 borders_data <- read.csv("outputs/filtered_countryborders_data.csv")
 
@@ -389,7 +434,8 @@ print(betweenness_centrality)
 centrality_measures <- data.frame(
   country = V(graph)$name,
   degree_centrality = degree_centrality,
-  closeness_centrality = closeness_centrality
+  closeness_centrality = closeness_centrality,
+  betweenness_centrality = betweenness_centrality
 )
 write.csv(centrality_measures, "outputs/borders_centrality_measures.csv", row.names = FALSE)
 

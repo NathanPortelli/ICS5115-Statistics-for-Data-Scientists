@@ -45,9 +45,7 @@
 
 # install.packages('stringr')
 # install.packages('tidyr')
-install.packages('stringi',type='win.binary')
-
-remove.packages("stringi")
+# install.packages('stringi',type='win.binary')
 
 # Loading required packages
 library(stringr)

@@ -67,7 +67,7 @@ new_records <- data.frame(
 new_records_swapped <- new_records[, c("country_border_code", "country_border_name", "country_code", "country_name")]
 colnames(new_records_swapped) <- colnames(new_records)
 
-# Addding new_records to the countryborders_dataset
+# Adding new_records to the countryborders_dataset
 countryborders_dataset <- rbind(countryborders_dataset, new_records, new_records_swapped)
 
 "
@@ -163,7 +163,6 @@ countryborders_dataset <- replace_country_names(countryborders_dataset, "Moldova
 
 print(countryborders_dataset)
 
-
 "
   List of unique contestants from contestants.csv dataset
 "
@@ -220,7 +219,7 @@ filtered_countryborders_data <- filtered_countryborders_data[!(filtered_countryb
 "
 
 filtered_countryborders_data <- lapply(filtered_countryborders_data, function(x) trimws(x))
-# Converting list back to a dataframe
+# Converting list back to a DataFrame
 filtered_countryborders_data <- as.data.frame(filtered_countryborders_data)
 
 print(filtered_countryborders_data)

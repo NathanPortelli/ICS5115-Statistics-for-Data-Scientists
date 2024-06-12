@@ -111,13 +111,14 @@ unique_empty_votes <- randomized_empty_votes %>%
 
 write.csv(unique_empty_votes, "outputs/random_votes.csv", row.names = FALSE)
 
+
 "
-  1957 to 1961, 1974
+  1957 to 1961, 1967 to 1970, 1974
 "
 
 # Generating random number with higher chance of being less than 5
 generate_random_number <- function() {
-  if (runif(1) < 0.9) {
+  if (runif(1) < 0.6) {   # 0.9 - Probability for 0
     return(sample(0:4, 1))
   } else {
     return(sample(5:10, 1))
@@ -163,7 +164,7 @@ library(dplyr)
 
 # Generating random number with a higher chance of being 0
 generate_random_number <- function() {
-  if (runif(1) < 0.4) {  # Probability for 0, e.g., 0.6 for 60% chance
+  if (runif(1) < 0.6) {  # 0.4 - Probability for 0
     return(0)
   } else {
     return(sample(1:3, 1))
@@ -228,7 +229,7 @@ write.csv(empty_votes, "outputs/random_votes.csv", row.names = FALSE)
 
 # Generating random number with a higher chance of being 0
 generate_random_number <- function() {
-  if (runif(1) < 0.3) {  # Probability for 0, e.g., 0.6 for 60% chance
+  if (runif(1) < 0.6) {  # 0.3 - Probability for 0
     return(0)
   } else {
     return(sample(1:5, 1))
@@ -294,7 +295,7 @@ write.csv(empty_votes, "outputs/random_votes.csv", row.names = FALSE)
 
 # Generating random number with a higher chance of being 0
 generate_random_number <- function() {
-  if (runif(1) < 0.5) {  # Probability for 0, e.g., 0.5 for 50% chance
+  if (runif(1) < 0.6) {  # Probability for 0
     return(0)
   } else {
     return(sample(c(1, 3, 5, 6), 1))  # Randomly choose from available points
@@ -381,7 +382,7 @@ write.csv(empty_votes, "outputs/random_votes.csv", row.names = FALSE)
 
 # Generating random number with higher chance of being less than 5
 generate_random_number <- function() {
-  if (runif(1) < 0.9) {  # Probability for 0
+  if (runif(1) < 0.6) {  # 0.9 - Probability for 0
     return(sample(0:4, 1))
   } else {
     return(sample(5:10, 1))
@@ -426,7 +427,7 @@ write.csv(empty_votes, "outputs/random_votes.csv", row.names = FALSE)
 
 # Generating random number with a higher chance of being 0
 generate_random_number <- function() {
-  if (runif(1) < 0.4) {  # Probability for 0
+  if (runif(1) < 0.6) {  # 0.4 - Probability for 0
     return(0)
   } else {
     return(sample(c(1:8, 10, 12), 1))  # Skipping 9 and 11
@@ -473,7 +474,7 @@ write.csv(empty_votes, "outputs/random_votes.csv", row.names = FALSE)
 
 # Generating random number with a higher chance of being 0
 generate_random_number <- function() {
-  if (runif(1) < 0.4) {  # Probability for 0
+  if (runif(1) < 0.6) {  # 0.4 - Probability for 0
     return(0)
   } else {
     return(sample(c(1:8, 10, 12), 1))  # Skipping 9 and 11
@@ -533,3 +534,4 @@ empty_votes$total_points[empty_votes$year >= 2016 & empty_votes$year <= 2023] <-
 
 print(empty_votes[empty_votes$year >= 2016 & empty_votes$year <= 2023, ])
 write.csv(empty_votes, "outputs/random_votes.csv", row.names = FALSE)
+

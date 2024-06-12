@@ -73,7 +73,7 @@ heatmap <- ggplot(voting_matrix, aes(x = to_country, y = from_country, fill = to
   scale_fill_gradient(low = "white", high = "red") +
   theme_minimal() +
   labs(title = "Random Voting Patterns", x = "To Country", y = "From Country", fill = "Total Points") +
-  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1), legend.position = "right")
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1), legend.position = "bottom")
 print(heatmap)
 
 # Extracting information to csv file

@@ -166,6 +166,25 @@ plot(graph_ethnicity_russia,
      main = "Network Graph of Countries Connected to Russia based on Ethnicities")
 
 "
+  Calculating percentage of ethnic voting for the top 3 points per country
+"
+
+# Re-loading the data
+ethnicity_comparison <- read.csv("outputs/ethnicity_comparison.csv")
+
+# Merging ethnicity_comparison with separated_ethnicities_coded to obtain country names
+ethnicity_comparison <- merge(ethnicity_comparison, separated_ethnicities_coded, by.x = "country_from", by.y = "Country_Code", all.x = TRUE)
+ethnicity_comparison <- merge(ethnicity_comparison, separated_ethnicities_coded, by.x = "country_to", by.y = "Country_Code", all.x = TRUE, suffixes = c("_from", "_to"))
+
+# Counting the number of connected countries with the same ethnicity
+total_connected <- nrow(ethnicity_comparison)
+same_ethnicity <- sum(ethnicity_comparison$has_same_ethnicity, na.rm = TRUE)
+percentage_same_ethnicity <- (same_ethnicity / total_connected) * 100
+
+# Total percentage of connected countries with the same ethnicity (%):
+percentage_same_ethnicity
+
+"
   Correlation Analysis
 "
 

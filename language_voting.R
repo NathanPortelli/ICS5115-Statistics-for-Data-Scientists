@@ -59,6 +59,7 @@
 "
 
 #install.packages('igraph')
+#install.packages('tidyr')
 
 # Loading the required library
 library(igraph)
@@ -216,6 +217,37 @@ if (total_rows_lang > 0) {
 percentage_same_language
 
 write.csv(edge_list_lang, "outputs/same_language_edges.csv", row.names = FALSE)
+
+
+"
+  Calculating percentage of language voting for the top 3 points per country
+"
+
+# Aggregating total points for each combination of from_country and to_country
+top_countries <- aggregate(total_points ~ from_country + to_country, data = votes_data, sum)
+
+# Ordering the DataFrame in descending order of total points
+top_countries <- top_countries[order(-top_countries$total_points), ]
+
+# Grouping by from_country and select the top entries for each group
+top_countries <- top_countries %>%
+  group_by(from_country) %>%
+  slice_head(n = 3)
+
+# Uppercasing the values to ensure consistency
+top_countries$from_country <- toupper(top_countries$from_country)
+top_countries$to_country <- toupper(top_countries$to_country)
+
+# Merging top_countries with language_comparison to obtain language information
+top_countries <- merge(top_countries, language_comparison, by.x = c("from_country", "to_country"), by.y = c("country_from", "country_to"), all.x = TRUE)
+
+# Calculating the percentage of connected countries that have the same language
+total_connected <- nrow(top_countries)
+same_language <- sum(top_countries$has_same_language, na.rm = TRUE)
+percentage_same_language <- (same_language / total_connected) * 100
+
+# Total percentage of connected countries with the same language (%):
+print(percentage_same_language)
 
 "
   Correlation Analysis
