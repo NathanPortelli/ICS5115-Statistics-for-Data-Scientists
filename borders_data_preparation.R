@@ -37,7 +37,6 @@
   the ESC This involves filtering both the country_name column and the 
   country_border_name column.
   
-  
   The final output was placed into 'filtered_countryborders_data', consisting of
   the columns 'country_code', 'country_name', 'country_border_code' and 
   'country_border_name', consisting of only countries which at some point
@@ -138,21 +137,21 @@ australia <- data.frame(
   country_border_name = NA
 )
 
-# Addding the new records
+# Adding the new records
 countryborders_dataset <- rbind(countryborders_dataset, france_uk, malta_italy, denmark_norway_sweden, cyprus_turkey, uk_iceland, iceland_norway, israel, australia)
 
 "
   Cleaning up the data
 "
 
-# Fixing the output for 'Moldova' due to issues with formatting on dataset
+# Re-formatting the country names (Moldova) & replaced with formalised name
 replace_country_names <- function(data, old_name, new_name) {
   data$country_name <- gsub("\\(.*?\\)", "", gsub(old_name, new_name, data$country_name))
   data$country_border_name <- gsub("\\(.*?\\)", "", gsub(old_name, new_name, data$country_border_name))
   return(data)
 }
 
-# Formalising names of countries with multiple used names
+# Formalising names of countries with differently used names
 countryborders_dataset <- replace_country_names(countryborders_dataset, "Russian Federation", "Russia")
 countryborders_dataset <- replace_country_names(countryborders_dataset, "Bosnia and Herzegovina", "Bosnia & Herzegovina")
 countryborders_dataset <- replace_country_names(countryborders_dataset, "Czechia", "Czech Republic")

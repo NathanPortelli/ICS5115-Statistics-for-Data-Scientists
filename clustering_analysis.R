@@ -41,29 +41,13 @@
   unique colour.
 "
 
+# install.packages('dplyr')
 # install.packages('igraph')
 # install.packages('ggplot2')
 # install.packages('ggrepel')
-# install.packages('dendextend')
-# install.packages('ggdendro')
-# install.packages('corrplot')
+# install.packages('readr')
 # install.packages('maps')
 # install.packages('mapdata')
-
-
-#todo: delete
-# library(dendextend)
-# library(ggdendro)
-
-# library(corrplot)
-# library(tidyr)
-
-# library(maps)
-# library(mapdata)
-# library(RColorBrewer)
-# library(forcats)
-
-# library(cluster)
 
 # Loading required packages
 library(dplyr)
@@ -72,6 +56,8 @@ library(ggplot2)
 library(ggrepel)
 library(readr)
 library(reshape2)
+library(maps)
+library(mapdata)
 
 "
   ========================================
@@ -91,11 +77,8 @@ calculate_summary_stats <- function(data, years) {
     # Filtering data for current year
     votes_filtered <- subset(data, year == year_num & total_points > 0 & round == 'final')
     
-    # Edge list
-    edges <- subset(votes_filtered, select = c("from_country", "to_country"))
-    
-    # Creating the graph
-    g <- graph_from_data_frame(edges, directed = TRUE)
+    edges <- subset(votes_filtered, select = c("from_country", "to_country"))  # Edge list
+    g <- graph_from_data_frame(edges, directed = TRUE)  # Creating the graph
     
     # Clustering coefficient for each node
     clustering_coefficients <- transitivity(g, type = "local", isolates = "zero")
@@ -112,10 +95,7 @@ calculate_summary_stats <- function(data, years) {
                 median = median(clustering_coefficient),
                 sd = sd(clustering_coefficient))
     
-    # Adding the year to the summary statistics
     summary_stats <- cbind(year = year_num, summary_stats)
-    
-    # Appending results
     summary_stats_all_years <- rbind(summary_stats_all_years, summary_stats)
   }
   
@@ -209,11 +189,8 @@ write.csv(clustering_df, "outputs/clustering_coefficients.csv", row.names = FALS
 # Re-loading random votes dataset
 random_votes_data <- read.csv("outputs/random_votes.csv")
 
-# Edge list
-edges <- subset(random_votes_data, select = c("from_country", "to_country"))
-
-# Creating the graph
-g <- graph_from_data_frame(edges, directed = TRUE)
+edges <- subset(random_votes_data, select = c("from_country", "to_country"))  # Edge list
+g <- graph_from_data_frame(edges, directed = TRUE)  # Creating the graph
 
 # Clustering coefficient for each node
 clustering_coefficients <- transitivity(g, type = "local", isolates = "zero")
@@ -239,7 +216,7 @@ write.csv(clustering_df, "outputs/random_votes_clustering_coefficients.csv", row
 
 # Getting the region colour based on country
 # Regions based on: https://doi.org/10.1007/s42001-018-0020-2
-get_region_color <- function(country_code) {
+get_region_colour <- function(country_code) {
   if (country_code %in% c("PT", "ES", "MT", "SM", "AD", "MC", "MA", "IT")) {
     return("red")
   } else if (country_code %in% c("GB", "IE", "BE", "FR", "LU")) {
@@ -260,7 +237,7 @@ get_region_color <- function(country_code) {
 }
 
 # Creating a new column for region based on the country code
-clustering_df$region <- sapply(clustering_df$country, get_region_color)
+clustering_df$region <- sapply(clustering_df$country, get_region_colour)
 
 # Sorting the data by region, and then alphabetically within each region
 clustering_df <- clustering_df[order(clustering_df$region, clustering_df$country),]

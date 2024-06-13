@@ -68,10 +68,9 @@
 "
 
 # install.packages('stringi',type='win.binary')
+# install.packages('dplyr')
 # install.packages('ggplot2')
 # install.packages('tidyr')
-# install.packages('gtools')
-# install.packages('mapproj')
 # install.packages('igraph')
 # install.packages('readr')
 # install.packages('maps')
@@ -204,7 +203,7 @@ plot(
 
 # Getting the region colour based on country
 # Regions based on: https://doi.org/10.1007/s42001-018-0020-2
-get_region_color <- function(country_code) {
+get_region_colour <- function(country_code) {
   if (country_code %in% c("PT", "ES", "MT", "SM", "AD", "MC", "MA", "IT")) {
     return("red")
   } else if (country_code %in% c("GB", "IE", "BE", "FR", "LU")) {
@@ -259,7 +258,7 @@ edge_list$is_neighbour <- as.logical(edge_list$is_neighbour)
 
 graph <- graph_from_data_frame(edge_list, directed = TRUE)  # Undirected graph
 
-vertex_colours <- sapply(V(graph)$name, get_region_color)
+vertex_colours <- sapply(V(graph)$name, get_region_colour)
 
 plot(graph, 
      edge.color = ifelse(edge_list$is_neighbour, "green", "red"),
@@ -275,7 +274,6 @@ plot(graph,
 "
 
 total_rows <- nrow(top_countries)
-
 neighbour_rows <- sum(top_countries$is_neighbour == "TRUE", na.rm = TRUE)
 
 # Calculating the percentage
@@ -340,7 +338,6 @@ europe <- subset(world_map, region %in% c("Albania", "Andorra", "Armenia", "Aust
                                           "Macedonia", "Netherlands","Norway","Poland","Portugal","Romania",
                                           "Russia","San Marino","Serbia","Slovakia","Slovenia","Spain",
                                           "Sweden","Switzerland","Turkey","Ukraine","UK","Vatican", "Israel"))
-
 
 # Merging the aggregated points data with the map data
 europe <- europe %>%
@@ -507,31 +504,16 @@ print(t_test_result)
 
 
 "
-Output:
-
-	Welch Two Sample t-test
-
-data:  neighbor_points and non_neighbor_points
-t = -2.9316, df = 1914.6, p-value = 0.003412
-alternative hypothesis: true difference in means is not equal to 0
-95 percent confidence interval:
- -0.5363390 -0.1063769
-sample estimates:
-mean of x mean of y 
- 3.100864  3.422222 
+  Output:
+  
+  Welch Two Sample t-test
+  
+  data:  neighbor_points and non_neighbor_points
+  t = -2.9316, df = 1914.6, p-value = 0.003412
+  alternative hypothesis: true difference in means is not equal to 0
+  95 percent confidence interval:
+   -0.5363390 -0.1063769
+  sample estimates:
+  mean of x mean of y 
+   3.100864  3.422222 
 "
-
-#TODO: WHAT TO DO WITH AVG POINTS:
-
-# Calculating the average total points given by bordering countries to each other
-border_avg_points <- mean(border_votes$total_points)
-
-# Calculating average total points given by all other countries
-non_border_votes <- votes %>%
-  anti_join(filtered_countryborders_data, by = c("from_country" = "country_code", "to_country" = "country_border_code")) %>%
-  filter(!is.na(total_points))  # Removing NA values
-non_border_avg_points <- mean(non_border_votes$total_points)
-
-# Display average points
-print(border_avg_points)
-print(non_border_avg_points)

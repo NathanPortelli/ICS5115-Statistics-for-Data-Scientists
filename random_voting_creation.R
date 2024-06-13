@@ -53,11 +53,12 @@
   CSV file named 'outputs/random_votes.csv'.
 "
 
-# install.packages('purrr')
 # install.packages('dplyr')
+# install.packages('purrr')
 
+# Loading the required libraries
 library(dplyr)
-library(purrr)
+library(purrr)  # To shuffle 'to_country' column
 
 "
   Load datasets
@@ -114,6 +115,8 @@ write.csv(unique_empty_votes, "outputs/random_votes.csv", row.names = FALSE)
 
 "
   1957 to 1961, 1967 to 1970, 1974
+  Random voting patterns are generated for these years with each country 
+  providing 10 points distributed among entries.
 "
 
 # Generating random number with higher chance of being less than 5
@@ -157,10 +160,8 @@ print(empty_votes)
 write.csv(empty_votes, "outputs/random_votes.csv", row.names = FALSE)
 
 "
-  1962
+  1962 - Each country provides votes ranging from 1 to 3 points.
 "
-
-library(dplyr)
 
 # Generating random number with a higher chance of being 0
 generate_random_number <- function() {
@@ -335,7 +336,7 @@ for (i in 1:nrow(empty_votes)) {
         vote_index <- match(random_points, available_votes)
         empty_votes$total_points[i] <- available_votes[vote_index]
         if (!is.na(empty_votes$total_points[i])) {  # Checking if total_points is not NA
-          if (empty_votes$total_points[i] %in% votes_given[[current_country]]) {  # Check if vote already given
+          if (empty_votes$total_points[i] %in% votes_given[[current_country]]) {  # Checking if vote already given
             empty_votes$total_points[i] <- 0  # If vote already given, set to 0
           } else {
             votes_given[[current_country]] <- c(votes_given[[current_country]], empty_votes$total_points[i])
@@ -502,8 +503,7 @@ for (i in 1:nrow(empty_votes)) {
       if (random_points %in% available_votes[[current_country]]) {
         # Removing the selected random number from available votes
         available_votes[[current_country]] <- available_votes[[current_country]][available_votes[[current_country]] != random_points]
-        #TODO: check to remove this:
-        # empty_votes$total_points[i] <- random_points
+        ### empty_votes$total_points[i] <- random_points
         # Assign random numbers to tele_points and jury_points
         empty_votes$tele_points[i] <- generate_random_number()
         empty_votes$jury_points[i] <- generate_random_number()

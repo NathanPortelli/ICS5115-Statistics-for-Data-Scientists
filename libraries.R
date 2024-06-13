@@ -1,0 +1,15 @@
+# This script installs the required R packages
+
+install.packages('dplyr')
+install.packages('ggplot2')
+install.packages('ggrepel')
+install.packages('igraph')
+install.packages('maps')
+install.packages('mapdata')
+install.packages('purrr')
+install.packages('readr')
+install.packages('reshape2')
+install.packages('sf')
+install.packages('stringi', type='win.binary')
+install.packages('stringr')
+install.packages('tidyr')

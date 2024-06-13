@@ -60,8 +60,8 @@ random_votes$tele_points[is.na(random_votes$tele_points)] <- 0
 random_votes$jury_points[is.na(random_votes$jury_points)] <- 0
 
 "
-    Visualising the dataset:
-    A general Heat Map of the Random Voting Dataset
+  Visualising the dataset:
+  A general Heat Map of the Random Voting Dataset
 "
 
 # Aggregating data to calculate total points given by each country to another
@@ -122,33 +122,11 @@ chi_square_result <- chisq.test(actual_table, p = random_table)
 chi_square_result
 
 "
-Output:
-  Pearson's Chi-squared test
-
-  data:  actual_table
-  X-squared = 5586.9, df = 2500, p-value < 2.2e-16
-"
-
-"
   T-Test
 "
 
 t_test_result <- t.test(actual_votes$total_points, random_votes$total_points)
 print(t_test_result)
-
-"
-Welch Two Sample t-test
-
-  data:  actual_votes$total_points and random_votes$total_points
-  t = -37.248, df = 102640, p-value < 2.2e-16
-  alternative hypothesis: true difference in means is not equal to 0
-  95 percent confidence interval:
-   -1.0835667 -0.9752316
-  sample estimates:
-  mean of x mean of y 
-   3.122078  4.151477 
-"
-
 
 "
   Correlation Analysis

@@ -127,11 +127,6 @@ separated_ethnicities_coded <- merge(separated_ethnicities, filtered_countrybord
 separated_ethnicities_coded <- separated_ethnicities_coded[, c("Country", "Ethnic.group", "country_code")]
 names(separated_ethnicities_coded)[3] <- "Country_Code"
 
-"
-  Saving modified dataset to csv file
-"
-
-# Save filtered_ethnic to a CSV file
 write.csv(separated_ethnicities_coded, "outputs/separated_ethnicities_coded.csv", row.names = FALSE)
 
 "

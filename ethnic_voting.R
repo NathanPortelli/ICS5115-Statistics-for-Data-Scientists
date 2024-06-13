@@ -54,6 +54,9 @@
   evidence of the impact of shared ethnicities on voting patterns in the ESC.
 "
 
+#install.packages('igraph')
+#install.packages('dplyr')
+
 # Loading the required libraries
 library(dplyr)
 library(igraph)

@@ -51,6 +51,10 @@
 library(stringr)
 library(tidyr)
 
+"
+  Loading datasets
+"
+
 # Loading the country languages dataset
 # Source: https://www.kaggle.com/datasets/shubhamptrivedi/languages-spoken-across-various-nations
 languages_dataset <- read.csv("data/countries-languages.csv")
