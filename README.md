@@ -1,9 +1,11 @@
-# ICS5115-Statistics-for-Data-Scientists
+# Eurovision Diplomacy: Investigating Neighbourhood Voting Through Data Analytics
 Project created in fulfilment of the UoM Masters in AI study unit ICS5115 - Statistics for Data Scientists
 
-## Description
+## Abstract
 
-This folder contains the R code, data, and CSV outputs for the assignment deliverables. The code is designed to perform [brief description of the assignment task, e.g., data analysis, visualization, etc.].
+This research investigates voting patterns in the European Song Contest through statistical, network, correlation, and clustering analyses on voting data spanning from 1957 to 2023, and country characteristics. The study aims to determine whether neighbourhood voting, particularly between countries with geographical, linguistic, and ethnic commonalities, is prevalent within the contest. The results reveal that the existing voting patterns are non-random, with voting blocs in geographic proximity, as well as language and ethnic similarities to a lesser extent, having a significantly larger chance of voting for one another.
+
+The full report can be found in `Eurovision Diplomacy - Investigating Neighbourhood Voting Through Data Analytics.pdf`.
 
 ## Folder Contents
 
